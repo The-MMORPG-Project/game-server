@@ -1,3 +1,7 @@
+## Roadmap
+- [ ] Flawless Console with Input Output Functionality
+- [ ] Clean Optimized Server Code
+
 ## Setup
 1. Clone `https://github.com/SoftwareGuy/ENet-CSharp`
 2. Go into the `Source/Managed` folder and run `dotnet build`
