@@ -4,7 +4,7 @@ namespace Valk.Networking
     {
         public virtual void Run(string[] args)
         {
-            Console.Log(LogType.Warning, "Unimplemented command.");
+            Console.LogWarning("Unimplemented command.");
         }
     }
 }

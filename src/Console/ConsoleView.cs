@@ -22,7 +22,7 @@ namespace Valk.Networking
 
             if (e.Key == Key.Esc) // KEY RESERVED FOR DEBUGGING
             {
-                Console.Log(LogType.Debug, Application.Driver.Clip.ToString());
+                Console.Log(Application.Driver.Clip.ToString());
                 return true;
             }
 
@@ -56,7 +56,7 @@ namespace Valk.Networking
                 if (cmd == "" || input == "")
                     return false;
 
-                Console.Log(LogType.Info, input);
+                Console.Log(input);
                 Console.HandleCommands(input);
 
                 Console.CommandHistory.Add(input);

@@ -14,7 +14,7 @@ namespace Valk.Networking
 
         public override void Run(string[] args)
         {
-            Console.Log(LogType.Info, $"Commands:\n - {String.Join("\n - ", commands)}");
+            Console.Log($"Commands:\n - {String.Join("\n - ", commands)}");
         }
     }
 }

@@ -10,7 +10,6 @@ namespace Valk.Networking
     public enum LogType
     {
         Info,
-        Debug,
         Warning,
         Error
     }
@@ -46,7 +45,6 @@ namespace Valk.Networking
 
             // Populate concurrent type color dictionary
             typeColor[LogType.Info] = (Application.Driver.MakeAttribute(Color.White, Color.Black), "INFO");
-            typeColor[LogType.Debug] = (Application.Driver.MakeAttribute(Color.Cyan, Color.Black), "DEBUG");
             typeColor[LogType.Warning] = (Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black), "WARNING");
             typeColor[LogType.Error] = (Application.Driver.MakeAttribute(Color.Red, Color.Black), "ERROR");
 
@@ -71,12 +69,31 @@ namespace Valk.Networking
             View.Add(Input);
         }
 
-        public static void Log(LogType type, object obj)
+        public static void LogError(object obj) 
+        {
+            AddMessage(CreateMessage(LogType.Error, obj));
+        }
+
+        public static void LogWarning(object obj) 
+        {
+            AddMessage(CreateMessage(LogType.Warning, obj));
+        }
+
+        public static void Log(object obj)
+        {
+            AddMessage(CreateMessage(LogType.Info, obj));
+        }
+
+        private static ConsoleMessage CreateMessage(LogType type, object obj) 
         {
             var time = $"{DateTime.Now:HH:mm:ss}";
-            var message = new ConsoleMessage($"{time} [{typeColor[type].Name}] {obj.ToString()}");
-            message.TextColor = typeColor[type].Color;
+            var message = new ConsoleMessage($"{time} [{typeColor[LogType.Info].Name}] {obj.ToString()}");
+            message.TextColor = typeColor[LogType.Info].Color;
+            return message;
+        }
 
+        private static void AddMessage(ConsoleMessage message) 
+        {
             const int BOTTOM_PADDING = 3;
             if (GetTotalLines() > ConsoleView.Driver.Clip.Bottom - BOTTOM_PADDING)
                 ViewOffset -= message.GetLines();
@@ -121,7 +138,7 @@ namespace Valk.Networking
             if (Commands.ContainsKey(cmd))
                 Commands[cmd].Run(args);
             else
-                Log(LogType.Info, $"Unknown Command: '{cmd}'");
+                Log($"Unknown Command: '{cmd}'");
         }
     }
 }
