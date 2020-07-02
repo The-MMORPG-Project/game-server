@@ -150,7 +150,7 @@ namespace Valk.Networking
                 }
 
                 // Send the data to the clients
-                //Logger.Log($"Broadcasting to client {clientQueued.ID}");
+                //Console.Log($"Broadcasting to client {clientQueued.ID}");
                 Network.Broadcast(server, Packet.Create(PacketType.ServerPositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
                 positionPacketQueue.Remove(clientQueued);
             }

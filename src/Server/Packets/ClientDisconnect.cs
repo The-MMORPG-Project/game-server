@@ -14,7 +14,7 @@ namespace Valk.Networking
             var peersToSend = Server.clients.FindAll(x => x.Status == ClientStatus.InGame && x.ID != id).Select(x => x.Peer).ToArray();
             Network.Broadcast(Server.server, Packet.Create(PacketType.ServerClientDisconnected, PacketFlags.Reliable, netEvent.Peer.ID), peersToSend);
             netEvent.Peer.Disconnect(netEvent.Peer.ID);
-            //Logger.Log($"Client '{netEvent.Peer.ID}' disconnected");
+            //Console.Log($"Client '{netEvent.Peer.ID}' disconnected");
         }
     }
 }

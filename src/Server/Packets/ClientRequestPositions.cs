@@ -20,7 +20,7 @@ namespace Valk.Networking
                 Server.positionPacketQueue.Add(client);
                 SendInitialPositions(client);
 
-                //Logger.Log($"Client {client.ID} requested initial positions, adding to queue..");
+                //Console.Log($"Client {client.ID} requested initial positions, adding to queue..");
             }
         }
 

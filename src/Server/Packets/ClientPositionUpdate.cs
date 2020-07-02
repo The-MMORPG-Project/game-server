@@ -11,7 +11,7 @@ namespace Valk.Networking
 
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
-            //Logger.Log($"Recieved x {x}, y {y}");
+            //Console.Log($"Recieved x {x}, y {y}");
 
             var client = Server.clients.Find(x => x.ID.Equals(id));
             client.x = x;
@@ -27,7 +27,7 @@ namespace Valk.Networking
             client.px = client.x;
             client.py = client.y;
 
-            //Logger.Log(client);
+            //Console.Log(client);
         }
     }
 }
