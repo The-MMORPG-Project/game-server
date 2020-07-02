@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using ENet;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Networking.Packets
 {
     public class ClientRequestNames : HandlePacket
     {

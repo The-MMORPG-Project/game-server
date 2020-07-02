@@ -1,6 +1,6 @@
-namespace Valk.Networking
+namespace GameServer.Framework.Logging.Commands
 {
-    public class Exit : Commands
+    public class Exit : Command
     {
         public override void Run(string[] args)
         {

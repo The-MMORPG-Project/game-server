@@ -1,11 +1,11 @@
 using System;
 using Terminal.Gui;
 
-namespace Valk.Networking 
+namespace GameServer.Framework.Logging
 {
-    public class ConsoleMessage : Label
+    public class LoggerMessage : Label
     {
-        public ConsoleMessage(string text, Color textColor = Color.White, Color backgroundColor = Color.Black) : base(text) 
+        public LoggerMessage(string text, Color textColor = Color.White, Color backgroundColor = Color.Black) : base(text) 
         {
             this.Text = text;
             SetColor(textColor, backgroundColor);
@@ -19,7 +19,7 @@ namespace Valk.Networking
         public int GetLines() 
         {
             var lines = 0;
-            lines += (int)Math.Ceiling(this.Text.Length / (ConsoleView.Driver.Clip.Width * 1.0));
+            lines += (int)Math.Ceiling(this.Text.Length / (LoggerView.Driver.Clip.Width * 1.0));
             lines += this.Text.ToString().Split('\n').Length - 1;
             return lines;
         }

@@ -6,14 +6,18 @@ using System.Collections.Generic;
 
 using ENet;
 
-namespace Valk.Networking
+using GameServer.Framework.Logging;
+using GameServer.Framework.Networking.Packets;
+using GameServer.Framework.Networking.Utils;
+
+namespace GameServer.Framework.Networking
 {
     class Server
     {
         public static Dictionary<string, HandlePacket> HandlePackets = typeof(HandlePacket).Assembly.GetTypes().Where(x => typeof(HandlePacket).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<HandlePacket>().ToDictionary(x => x.GetType().Name, x => x);
 
         public static Host server;
-        public Timer positionUpdatePump;
+        public GameTimer positionUpdatePump;
 
         private const int POSITION_UPDATE_DELAY = 100;
 
@@ -35,7 +39,7 @@ namespace Valk.Networking
             clients = new List<Client>();
             positionPacketQueue = new List<Client>();
 
-            positionUpdatePump = new Timer(POSITION_UPDATE_DELAY, PositionUpdates);
+            positionUpdatePump = new GameTimer(POSITION_UPDATE_DELAY, PositionUpdates);
             positionUpdatePump.Start();
         }
 
@@ -50,7 +54,7 @@ namespace Valk.Networking
             server.Create(address, maxClients);
             serverRunning = true;
 
-            Console.Log($"Server listening on {port}");
+            Logger.Log($"Server listening on {port}");
 
             //int packetCounter = 0;
             //int i = 0;
@@ -82,22 +86,22 @@ namespace Valk.Networking
                             break;
 
                         case EventType.Connect:
-                            Console.Log($"Client connected - ID: {id}, IP: {ip}");
+                            Logger.Log($"Client connected - ID: {id}, IP: {ip}");
                             clients.Add(new Client(netEvent.Peer));
                             break;
 
                         case EventType.Disconnect:
-                            Console.Log($"Client disconnected - ID: {id}, IP: {ip}");
+                            Logger.Log($"Client disconnected - ID: {id}, IP: {ip}");
                             clients.Remove(clients.Find(x => x.ID.Equals(netEvent.Peer.ID)));
                             break;
 
                         case EventType.Timeout:
-                            Console.Log($"Client timeout - ID: {id}, IP: {ip}");
+                            Logger.Log($"Client timeout - ID: {id}, IP: {ip}");
                             clients.Remove(clients.Find(x => x.ID.Equals(netEvent.Peer.ID)));
                             break;
 
                         case EventType.Receive:
-                            //Console.Log($"{packetCounter++} Packet received from - ID: {id}, IP: {ip}, Channel ID: {netEvent.ChannelID}, Data length: {netEvent.Packet.Length}");
+                            //Logger.Log($"{packetCounter++} Packet received from - ID: {id}, IP: {ip}, Channel ID: {netEvent.ChannelID}, Data length: {netEvent.Packet.Length}");
                             HandlePacket(netEvent);
                             netEvent.Packet.Dispose();
                             break;
@@ -150,7 +154,7 @@ namespace Valk.Networking
                 }
 
                 // Send the data to the clients
-                //Console.Log($"Broadcasting to client {clientQueued.ID}");
+                Logger.Log($"Broadcasting to client {clientQueued.ID}");
                 Network.Broadcast(server, Packet.Create(PacketType.ServerPositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
                 positionPacketQueue.Remove(clientQueued);
             }
@@ -200,7 +204,7 @@ namespace Valk.Networking
 
             catch (ArgumentOutOfRangeException)
             {
-                Console.LogWarning($"Received packet from client '{id}' but buffer was too long. {netEvent.Packet.Length}");
+                Logger.LogWarning($"Received packet from client '{id}' but buffer was too long. {netEvent.Packet.Length}");
             }
         }
 

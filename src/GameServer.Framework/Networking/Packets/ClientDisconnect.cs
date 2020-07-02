@@ -2,7 +2,7 @@ using System.Linq;
 
 using ENet;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Networking.Packets
 {
     public class ClientDisconnect : HandlePacket
     {

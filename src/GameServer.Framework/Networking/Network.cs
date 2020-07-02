@@ -1,6 +1,6 @@
 using ENet;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Networking
 {
     class Network
     {

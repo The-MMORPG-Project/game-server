@@ -3,9 +3,13 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Linq;
 using System.Collections.Generic;
+
 using Terminal.Gui;
 
-namespace Valk.Networking
+using GameServer.Framework.Logging.Commands;
+using GameServer.Framework.Networking;
+
+namespace GameServer.Framework.Logging
 {
     public enum LogType
     {
@@ -14,14 +18,14 @@ namespace Valk.Networking
         Error
     }
 
-    public class Console
+    public class Logger
     {
-        public static Dictionary<string, Commands> Commands = typeof(Commands).Assembly.GetTypes().Where(x => typeof(Commands).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<Commands>().ToDictionary(x => x.GetType().Name.ToLower(), x => x);
+        public static Dictionary<string, Command> Commands = typeof(Command).Assembly.GetTypes().Where(x => typeof(Command).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<Command>().ToDictionary(x => x.GetType().Name.ToLower(), x => x);
         private static readonly ConcurrentDictionary<LogType, (Terminal.Gui.Attribute Color, string Name)> typeColor = new ConcurrentDictionary<LogType, (Terminal.Gui.Attribute Color, string Name)>();
 
         public static TextField Input;
-        public static ConsoleView View;
-        public static List<ConsoleMessage> Messages;
+        public static LoggerView View;
+        public static List<LoggerMessage> Messages;
         public static int ViewOffset = 0;
 
         public static List<string> CommandHistory;
@@ -33,15 +37,15 @@ namespace Valk.Networking
             Application.OnResized += UpdatePositions;
 
             CommandHistory = new List<string>();
-            Messages = new List<ConsoleMessage>();
-            View = new ConsoleView();
+            Messages = new List<LoggerMessage>();
+            View = new LoggerView();
 
             Application.GrabMouse(View); // This way we can scroll even when our mouse is over Label views
             Application.Top.Add(View);
 
             CreateInputField();
 
-            StartServer(); // Finished setting up console, we can now start the server
+            StartServer(); // Finished setting up Logger, we can now start the server
 
             // Populate concurrent type color dictionary
             typeColor[LogType.Info] = (Application.Driver.MakeAttribute(Color.White, Color.Black), "INFO");
@@ -62,8 +66,8 @@ namespace Valk.Networking
             Input = new TextField("")
             {
                 X = 0,
-                Y = ConsoleView.Driver.Clip.Bottom - 1,
-                Width = ConsoleView.Driver.Clip.Width
+                Y = LoggerView.Driver.Clip.Bottom - 1,
+                Width = LoggerView.Driver.Clip.Width
             };
 
             View.Add(Input);
@@ -84,18 +88,18 @@ namespace Valk.Networking
             AddMessage(CreateMessage(LogType.Info, obj));
         }
 
-        private static ConsoleMessage CreateMessage(LogType type, object obj) 
+        private static LoggerMessage CreateMessage(LogType type, object obj) 
         {
             var time = $"{DateTime.Now:HH:mm:ss}";
-            var message = new ConsoleMessage($"{time} [{typeColor[LogType.Info].Name}] {obj.ToString()}");
+            var message = new LoggerMessage($"{time} [{typeColor[LogType.Info].Name}] {obj.ToString()}");
             message.TextColor = typeColor[LogType.Info].Color;
             return message;
         }
 
-        private static void AddMessage(ConsoleMessage message) 
+        private static void AddMessage(LoggerMessage message) 
         {
             const int BOTTOM_PADDING = 3;
-            if (GetTotalLines() > ConsoleView.Driver.Clip.Bottom - BOTTOM_PADDING)
+            if (GetTotalLines() > LoggerView.Driver.Clip.Bottom - BOTTOM_PADDING)
                 ViewOffset -= message.GetLines();
 
             Messages.Add(message);

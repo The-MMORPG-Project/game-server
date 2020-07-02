@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Networking.Packets
 {
     public class ClientPositionUpdate : HandlePacket
     {

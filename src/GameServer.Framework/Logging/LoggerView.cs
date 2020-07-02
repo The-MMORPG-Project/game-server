@@ -1,10 +1,10 @@
 using Terminal.Gui;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Logging
 {
-    public class ConsoleView : View
+    public class LoggerView : View
     {
-        public ConsoleView() : base()
+        public LoggerView() : base()
         {
             DefaultColorScheme();
         }
@@ -14,52 +14,52 @@ namespace Valk.Networking
             base.ProcessKey(e);
 
             // Reset view back to 'input area' if any key is pressed
-            if (Console.ViewOffset + Console.GetTotalLines() > ConsoleView.Driver.Clip.Height - 1)
+            if (Logger.ViewOffset + Logger.GetTotalLines() > LoggerView.Driver.Clip.Height - 1)
             {
-                Console.ViewOffset = -Console.GetTotalLines() + ConsoleView.Driver.Clip.Height - 1;
-                Console.UpdatePositions();
+                Logger.ViewOffset = -Logger.GetTotalLines() + LoggerView.Driver.Clip.Height - 1;
+                Logger.UpdatePositions();
             }
 
             if (e.Key == Key.Esc) // KEY RESERVED FOR DEBUGGING
             {
-                Console.Log(Application.Driver.Clip.ToString());
+                Logger.Log(Application.Driver.Clip.ToString());
                 return true;
             }
 
             if (e.Key == Key.CursorDown)
             {
-                if (Console.CommandHistoryIndex + Console.CommandHistory.Count + 1 < Console.CommandHistory.Count)
+                if (Logger.CommandHistoryIndex + Logger.CommandHistory.Count + 1 < Logger.CommandHistory.Count)
                 {
-                    Console.CommandHistoryIndex++;
-                    Console.Input.Text = Console.CommandHistory[Console.CommandHistoryIndex + Console.CommandHistory.Count];
+                    Logger.CommandHistoryIndex++;
+                    Logger.Input.Text = Logger.CommandHistory[Logger.CommandHistoryIndex + Logger.CommandHistory.Count];
                 }
                 return true;
             }
 
             if (e.Key == Key.CursorUp)
             {
-                if (Console.CommandHistoryIndex + Console.CommandHistory.Count - 1 >= 0)
+                if (Logger.CommandHistoryIndex + Logger.CommandHistory.Count - 1 >= 0)
                 {
-                    Console.CommandHistoryIndex--;
-                    Console.Input.Text = Console.CommandHistory[Console.CommandHistory.Count + Console.CommandHistoryIndex];
+                    Logger.CommandHistoryIndex--;
+                    Logger.Input.Text = Logger.CommandHistory[Logger.CommandHistory.Count + Logger.CommandHistoryIndex];
                 }
                 return true;
             }
 
             if (e.Key == Key.Enter)
             {
-                var input = Console.Input.Text.ToString();
+                var input = Logger.Input.Text.ToString();
                 var cmd = input.Split(' ')[0];
 
-                Console.Input.Text = "";
+                Logger.Input.Text = "";
 
                 if (cmd == "" || input == "")
                     return false;
 
-                Console.Log(input);
-                Console.HandleCommands(input);
+                Logger.Log(input);
+                Logger.HandleCommands(input);
 
-                Console.CommandHistory.Add(input);
+                Logger.CommandHistory.Add(input);
                 return true;
             }
 
@@ -72,19 +72,19 @@ namespace Valk.Networking
 
             if (e.Flags == MouseFlags.WheeledUp)
             {
-                if (Console.ViewOffset < 0)
+                if (Logger.ViewOffset < 0)
                 {
-                    Console.ViewOffset++;
-                    Console.UpdatePositions();
+                    Logger.ViewOffset++;
+                    Logger.UpdatePositions();
                 }
             }
 
             if (e.Flags == MouseFlags.WheeledDown)
             {
-                if (Console.ViewOffset + Console.GetTotalLines() > ConsoleView.Driver.Clip.Height - 1)
+                if (Logger.ViewOffset + Logger.GetTotalLines() > LoggerView.Driver.Clip.Height - 1)
                 {
-                    Console.ViewOffset--;
-                    Console.UpdatePositions();
+                    Logger.ViewOffset--;
+                    Logger.UpdatePositions();
                 }
             }
 

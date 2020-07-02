@@ -1,4 +1,4 @@
-namespace Valk.Networking
+namespace GameServer.Framework.Networking
 {
     enum PacketType
     {

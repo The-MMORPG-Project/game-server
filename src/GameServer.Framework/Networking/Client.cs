@@ -1,7 +1,7 @@
 using System;
 using ENet;
 
-namespace Valk.Networking
+namespace GameServer.Framework.Networking
 {
     enum ClientStatus
     {
@@ -30,6 +30,7 @@ namespace Valk.Networking
             this.Peer = peer;
             this.ID = peer.ID;
             this.IP = peer.IP;
+            this.Status = ClientStatus.InGame;
         }
 
         public void Kick()

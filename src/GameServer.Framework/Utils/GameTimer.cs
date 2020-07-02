@@ -1,12 +1,12 @@
 using System.Timers;
 
-namespace Valk.Networking 
+namespace GameServer.Framework.Networking.Utils
 {
-    class Timer
+    class GameTimer
     {
         private System.Timers.Timer timer;
 
-        public Timer(double interval, ElapsedEventHandler function) 
+        public GameTimer(double interval, ElapsedEventHandler function) 
         {
             timer = new System.Timers.Timer(interval);
             timer.Elapsed += function;
