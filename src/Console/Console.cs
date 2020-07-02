@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Linq;
 using System.Collections.Generic;
@@ -6,10 +7,19 @@ using Terminal.Gui;
 
 namespace Valk.Networking
 {
+    public enum LogType
+    {
+        Info,
+        Debug,
+        Warning,
+        Error
+    }
+
     public class Console
     {
         public static Dictionary<string, Commands> Commands = typeof(Commands).Assembly.GetTypes().Where(x => typeof(Commands).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<Commands>().ToDictionary(x => x.GetType().Name.ToLower(), x => x);
-        
+        private static readonly ConcurrentDictionary<LogType, (Terminal.Gui.Attribute Color, string Name)> typeColor = new ConcurrentDictionary<LogType, (Terminal.Gui.Attribute Color, string Name)>();
+
         public static TextField Input;
         public static ConsoleView View;
         public static List<ConsoleMessage> Messages;
@@ -18,7 +28,7 @@ namespace Valk.Networking
         public static List<string> CommandHistory;
         public static int CommandHistoryIndex = 0;
 
-        public void Start() 
+        public void Start()
         {
             Application.Init();
             Application.OnResized += UpdatePositions;
@@ -31,13 +41,19 @@ namespace Valk.Networking
             Application.Top.Add(View);
 
             CreateInputField();
-            
+
             StartServer(); // Finished setting up console, we can now start the server
+
+            // Populate concurrent type color dictionary
+            typeColor[LogType.Info] = (Application.Driver.MakeAttribute(Color.White, Color.Black), "INFO");
+            typeColor[LogType.Debug] = (Application.Driver.MakeAttribute(Color.Cyan, Color.Black), "DEBUG");
+            typeColor[LogType.Warning] = (Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black), "WARNING");
+            typeColor[LogType.Error] = (Application.Driver.MakeAttribute(Color.Red, Color.Black), "ERROR");
 
             Application.Run();
         }
 
-        public void StartServer() 
+        public void StartServer()
         {
             Program.Server = new Server(7777, 100);
             new Thread(Program.Server.Start).Start(); // Initialize server on thread 2
@@ -55,15 +71,15 @@ namespace Valk.Networking
             View.Add(Input);
         }
 
-        public static void Log(string text, Color textColor = Color.White, Color backgroundColor = Color.Black)
+        public static void Log(LogType type, object obj)
         {
-            var message = new ConsoleMessage(text);
+            var time = $"{DateTime.Now:HH:mm:ss}";
+            var message = new ConsoleMessage($"{time} [{typeColor[type].Name}] {obj.ToString()}");
+            message.TextColor = typeColor[type].Color;
 
             const int BOTTOM_PADDING = 3;
             if (GetTotalLines() > ConsoleView.Driver.Clip.Bottom - BOTTOM_PADDING)
-            {
                 ViewOffset -= message.GetLines();
-            }
 
             Messages.Add(message);
             View.Add(message);
@@ -87,10 +103,10 @@ namespace Valk.Networking
             Application.Refresh();
         }
 
-        public static int GetTotalLines() 
+        public static int GetTotalLines()
         {
             var totalLines = 0;
-            foreach (var message in Messages) 
+            foreach (var message in Messages)
             {
                 totalLines += message.GetLines();
             }
@@ -105,7 +121,7 @@ namespace Valk.Networking
             if (Commands.ContainsKey(cmd))
                 Commands[cmd].Run(args);
             else
-                Log($"Unknown Command: '{cmd}'");
+                Log(LogType.Info, $"Unknown Command: '{cmd}'");
         }
     }
 }

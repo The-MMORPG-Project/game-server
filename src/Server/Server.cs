@@ -50,7 +50,7 @@ namespace Valk.Networking
             server.Create(address, maxClients);
             serverRunning = true;
 
-            Console.Log($"Server listening on {port}");
+            Console.Log(LogType.Info, $"Server listening on {port}");
 
             //int packetCounter = 0;
             //int i = 0;
@@ -82,17 +82,17 @@ namespace Valk.Networking
                             break;
 
                         case EventType.Connect:
-                            Console.Log($"Client connected - ID: {id}, IP: {ip}");
+                            Console.Log(LogType.Info, $"Client connected - ID: {id}, IP: {ip}");
                             clients.Add(new Client(netEvent.Peer));
                             break;
 
                         case EventType.Disconnect:
-                            Console.Log($"Client disconnected - ID: {id}, IP: {ip}");
+                            Console.Log(LogType.Info, $"Client disconnected - ID: {id}, IP: {ip}");
                             clients.Remove(clients.Find(x => x.ID.Equals(netEvent.Peer.ID)));
                             break;
 
                         case EventType.Timeout:
-                            Console.Log($"Client timeout - ID: {id}, IP: {ip}");
+                            Console.Log(LogType.Info, $"Client timeout - ID: {id}, IP: {ip}");
                             clients.Remove(clients.Find(x => x.ID.Equals(netEvent.Peer.ID)));
                             break;
 
@@ -200,7 +200,7 @@ namespace Valk.Networking
 
             catch (ArgumentOutOfRangeException)
             {
-                Console.Log($"Received packet from client '{id}' but buffer was too long. {netEvent.Packet.Length}");
+                Console.Log(LogType.Warning, $"Received packet from client '{id}' but buffer was too long. {netEvent.Packet.Length}");
             }
         }
 
