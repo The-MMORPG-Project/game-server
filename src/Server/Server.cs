@@ -10,7 +10,9 @@ namespace Valk.Networking
 {
     class Server
     {
-        public Host server;
+        public static Dictionary<string, HandlePacket> HandlePackets = typeof(HandlePacket).Assembly.GetTypes().Where(x => typeof(HandlePacket).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<HandlePacket>().ToDictionary(x => x.GetType().Name, x => x);
+
+        public static Host server;
         public Timer positionUpdatePump;
 
         private const int POSITION_UPDATE_DELAY = 100;
@@ -22,8 +24,8 @@ namespace Valk.Networking
 
         private bool serverRunning;
 
-        private List<Client> clients;
-        private List<Client> positionPacketQueue;
+        public static List<Client> clients;
+        public static List<Client> positionPacketQueue;
 
         public Server(ushort port, int maxClients)
         {
@@ -154,44 +156,7 @@ namespace Valk.Networking
             }
         }
 
-        private void SendName(Client sender) 
-        {
-            var clientsInGame = clients.FindAll(x => x.Status == ClientStatus.InGame && x.ID != sender.ID);
-
-            if (clientsInGame.Count < 1)
-                return;
-
-            foreach (var client in clientsInGame) 
-            {
-                var data = new List<object>();
-
-                data.Add(client.ID);
-                data.Add(client.Name);
-
-                Network.Broadcast(server, Packet.Create(PacketType.ServerClientName, PacketFlags.Reliable, data.ToArray()), new Peer[] { client.Peer });
-            }
-        }
-
-        private void SendInitialPositions(Client recipient)
-        {
-            var clientsInGame = clients.FindAll(x => x.Status == ClientStatus.InGame && x.ID != recipient.ID);
-
-            if (clientsInGame.Count < 1)
-                return;
-
-            foreach (var client in clientsInGame)
-            {
-                var data = new List<object>();
-
-                data.Add(client.ID);
-                data.Add(client.x);
-                data.Add(client.y);
-
-                Network.Broadcast(server, Packet.Create(PacketType.ServerPositionUpdate, PacketFlags.Reliable, data.ToArray()), new Peer[] { recipient.Peer });
-            }
-        }
-
-        private Peer[] GetPeersInGame()
+        public static Peer[] GetPeersInGame()
         {
             return clients.FindAll(x => x.Status == ClientStatus.InGame).Select(x => x.Peer).ToArray();
         }
@@ -210,62 +175,24 @@ namespace Valk.Networking
                 netEvent.Packet.CopyTo(readBuffer);
                 var packetID = (PacketType)reader.ReadByte();
 
-                if (packetID == PacketType.ClientRequestNames) 
+                switch (packetID)
                 {
-                    var peers = GetPeersInGame();
-                    if (peers.Length == 0)
-                        return;
+                    case PacketType.ClientRequestNames:
+                        HandlePackets["ClientRequestNames"].Run(id);
+                        break;
 
-                    var client = clients.Find(x => x.ID.Equals(id));
-                    SendName(client);
-                }
+                    case PacketType.ClientRequestPositions:
+                        HandlePackets["ClientRequestPositions"].Run(id);
+                        break;
 
-                if (packetID == PacketType.ClientRequestPositions)
-                {
-                    var peers = GetPeersInGame();
-                    if (peers.Length == 0)
-                        return;
+                    case PacketType.ClientPositionUpdate:
+                        HandlePackets["ClientPositionUpdate"].Run(id, reader);
+                        break;
 
-                    var client = clients.Find(x => x.ID.Equals(id));
-                    if (!positionPacketQueue.Contains(client))
-                    {
-                        positionPacketQueue.Add(client);
-                        SendInitialPositions(client);
-                        
-                        //Logger.Log($"Client {client.ID} requested initial positions, adding to queue..");
-                    }
-                }
-
-                if (packetID == PacketType.ClientPositionUpdate)
-                {
-                    float x = reader.ReadSingle();
-                    float y = reader.ReadSingle();
-                    //Logger.Log($"Recieved x {x}, y {y}");
-
-                    var client = clients.Find(x => x.ID.Equals(id));
-                    client.x = x;
-                    client.y = y;
-
-                    // Client will be added to the position update queue
-                    if (!positionPacketQueue.Contains(client) && (client.x != client.px || client.y != client.py))
-                    {
-                        positionPacketQueue.Add(client);
-                    }
-
-                    // Keep track of previous position
-                    client.px = client.x;
-                    client.py = client.y;
-
-                    //Logger.Log(client);
-                }
-
-                if (packetID == PacketType.ClientDisconnect)
-                {
-                    var peersToSend = clients.FindAll(x => x.Status == ClientStatus.InGame && x.ID != id).Select(x => x.Peer).ToArray();
-                    Network.Broadcast(server, Packet.Create(PacketType.ServerClientDisconnected, PacketFlags.Reliable, netEvent.Peer.ID), peersToSend);
-                    netEvent.Peer.Disconnect(netEvent.Peer.ID);
-                    //Logger.Log($"Client '{netEvent.Peer.ID}' disconnected");
-                }
+                    case PacketType.ClientDisconnect:
+                        HandlePackets["ClientDisconnect"].Run(id, netEvent);
+                        break;
+                }   
 
                 readStream.Dispose();
                 reader.Dispose();
