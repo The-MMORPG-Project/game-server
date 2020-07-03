@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace GameServer.Framework.Logging.Commands
+namespace GameServer.Logging.Commands
 {
     public class Help : Command
     {

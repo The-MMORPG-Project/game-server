@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 
-using GameServer.Framework.Logging;
-using GameServer.Framework.Networking;
+using GameServer.Logging;
+using GameServer.Networking;
 
 namespace GameServer
 {

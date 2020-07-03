@@ -1,4 +1,4 @@
-namespace GameServer.Framework.Logging.Commands
+namespace GameServer.Logging.Commands
 {
     public abstract class Command
     {

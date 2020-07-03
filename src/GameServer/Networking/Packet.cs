@@ -1,4 +1,4 @@
-namespace GameServer.Framework.Networking
+namespace GameServer.Networking
 {
     enum PacketType
     {

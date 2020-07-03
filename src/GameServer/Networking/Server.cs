@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 using ENet;
 
-using GameServer.Framework.Logging;
-using GameServer.Framework.Networking.Packets;
-using GameServer.Framework.Networking.Utils;
+using GameServer.Logging;
+using GameServer.Networking.Packets;
+using GameServer.Networking.Utils;
 
-namespace GameServer.Framework.Networking
+namespace GameServer.Networking
 {
     class Server
     {

@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace GameServer.Framework.Networking
+namespace GameServer.Networking
 {
     public class PacketWriter : BinaryWriter 
     {

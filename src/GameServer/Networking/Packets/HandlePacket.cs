@@ -1,4 +1,4 @@
-namespace GameServer.Framework.Networking.Packets
+namespace GameServer.Networking.Packets
 {
     public abstract class HandlePacket
     {

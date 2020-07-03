@@ -1,6 +1,6 @@
 using System.Timers;
 
-namespace GameServer.Framework.Networking.Utils
+namespace GameServer.Networking.Utils
 {
     class GameTimer
     {

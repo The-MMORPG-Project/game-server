@@ -1,7 +1,7 @@
 using System;
 using ENet;
 
-namespace GameServer.Framework.Networking
+namespace GameServer.Networking
 {
     enum ClientStatus
     {

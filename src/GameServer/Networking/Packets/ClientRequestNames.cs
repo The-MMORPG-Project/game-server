@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using ENet;
 
-namespace GameServer.Framework.Networking.Packets
+namespace GameServer.Networking.Packets
 {
     public class ClientRequestNames : HandlePacket
     {

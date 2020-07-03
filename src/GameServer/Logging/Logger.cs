@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 using Terminal.Gui;
 
-using GameServer.Framework.Logging.Commands;
-using GameServer.Framework.Networking;
+using GameServer.Logging.Commands;
+using GameServer.Networking;
 
-namespace GameServer.Framework.Logging
+namespace GameServer.Logging
 {
     public enum LogType
     {

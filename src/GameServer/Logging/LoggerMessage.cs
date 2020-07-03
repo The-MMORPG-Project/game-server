@@ -1,7 +1,7 @@
 using System;
 using Terminal.Gui;
 
-namespace GameServer.Framework.Logging
+namespace GameServer.Logging
 {
     public class LoggerMessage : Label
     {

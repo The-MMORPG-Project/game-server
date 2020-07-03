@@ -1,6 +1,6 @@
 using ENet;
 
-namespace GameServer.Framework.Networking
+namespace GameServer.Networking
 {
     class Network
     {

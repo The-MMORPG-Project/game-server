@@ -2,7 +2,7 @@ using System.Linq;
 
 using ENet;
 
-namespace GameServer.Framework.Networking.Packets
+namespace GameServer.Networking.Packets
 {
     public class ClientDisconnect : HandlePacket
     {
