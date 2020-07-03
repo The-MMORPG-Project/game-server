@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace GameServer.Networking.Packets
+namespace GameServer.Networking.Packet
 {
     public class ClientPositionUpdate : HandlePacket
     {

@@ -2,7 +2,7 @@ using System.Linq;
 
 using ENet;
 
-namespace GameServer.Networking.Packets
+namespace GameServer.Networking.Packet
 {
     public class ClientDisconnect : HandlePacket
     {
@@ -12,7 +12,7 @@ namespace GameServer.Networking.Packets
             var netEvent = (Event)args[1];
 
             var peersToSend = Server.clients.FindAll(x => x.Status == ClientStatus.InGame && x.ID != id).Select(x => x.Peer).ToArray();
-            Network.Broadcast(Server.server, Packet.Create(PacketType.ServerClientDisconnected, PacketFlags.Reliable, netEvent.Peer.ID), peersToSend);
+            Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.ClientDisconnected, PacketFlags.Reliable, netEvent.Peer.ID), peersToSend);
             netEvent.Peer.Disconnect(netEvent.Peer.ID);
             //Console.Log($"Client '{netEvent.Peer.ID}' disconnected");
         }

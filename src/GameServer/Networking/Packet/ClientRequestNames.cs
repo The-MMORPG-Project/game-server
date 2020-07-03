@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using ENet;
 
-namespace GameServer.Networking.Packets
+namespace GameServer.Networking.Packet
 {
     public class ClientRequestNames : HandlePacket
     {
@@ -32,7 +32,7 @@ namespace GameServer.Networking.Packets
                 data.Add(client.ID);
                 data.Add(client.Name);
 
-                Network.Broadcast(Server.server, Packet.Create(PacketType.ServerClientName, PacketFlags.Reliable, data.ToArray()), new Peer[] { client.Peer });
+                Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.ClientName, PacketFlags.Reliable, data.ToArray()), new Peer[] { client.Peer });
             }
         }
     }

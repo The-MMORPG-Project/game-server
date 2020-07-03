@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 using ENet;
 
-namespace GameServer.Networking.Packets
+namespace GameServer.Networking.Packet
 {
     public class ClientRequestPositions : HandlePacket
     {
@@ -39,7 +39,7 @@ namespace GameServer.Networking.Packets
                 data.Add(client.x);
                 data.Add(client.y);
 
-                Network.Broadcast(Server.server, Packet.Create(PacketType.ServerPositionUpdate, PacketFlags.Reliable, data.ToArray()), new Peer[] { recipient.Peer });
+                Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.PositionUpdate, PacketFlags.Reliable, data.ToArray()), new Peer[] { recipient.Peer });
             }
         }
     }

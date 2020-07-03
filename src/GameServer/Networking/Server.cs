@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using ENet;
 
 using GameServer.Logging;
-using GameServer.Networking.Packets;
+using GameServer.Networking.Packet;
 using GameServer.Networking.Utils;
 
 namespace GameServer.Networking
@@ -155,7 +155,7 @@ namespace GameServer.Networking
 
                 // Send the data to the clients
                 Logger.Log($"Broadcasting to client {clientQueued.ID}");
-                Network.Broadcast(server, Packet.Create(PacketType.ServerPositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
+                Network.Broadcast(server, GamePacket.Create(ServerPacketType.PositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
                 positionPacketQueue.Remove(clientQueued);
             }
         }
@@ -177,23 +177,23 @@ namespace GameServer.Networking
 
                 readStream.Position = 0;
                 netEvent.Packet.CopyTo(readBuffer);
-                var packetID = (PacketType)reader.ReadByte();
+                var packetID = (ClientPacketType)reader.ReadByte();
 
                 switch (packetID)
                 {
-                    case PacketType.ClientRequestNames:
+                    case ClientPacketType.RequestNames:
                         HandlePackets["ClientRequestNames"].Run(id);
                         break;
 
-                    case PacketType.ClientRequestPositions:
+                    case ClientPacketType.RequestPositions:
                         HandlePackets["ClientRequestPositions"].Run(id);
                         break;
 
-                    case PacketType.ClientPositionUpdate:
+                    case ClientPacketType.PositionUpdate:
                         HandlePackets["ClientPositionUpdate"].Run(id, reader);
                         break;
 
-                    case PacketType.ClientDisconnect:
+                    case ClientPacketType.Disconnect:
                         HandlePackets["ClientDisconnect"].Run(id, netEvent);
                         break;
                 }   
