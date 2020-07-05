@@ -25,19 +25,24 @@ namespace GameServer.Logging
 
         public static TextField Input;
         public static LoggerView View;
-        public static List<LoggerMessage> Messages;
+        public static ConcurrentQueue<LoggerMessage> Messages;
         public static int ViewOffset = 0;
 
         public static List<string> CommandHistory;
         public static int CommandHistoryIndex = 0;
 
         public void Start()
-        {
+        {   
             Application.Init();
             Application.OnResized += UpdatePositions;
 
+            // Populate concurrent type color dictionary
+            typeColor[LogType.Info] = (Application.Driver.MakeAttribute(Color.White, Color.Black), "INFO");
+            typeColor[LogType.Warning] = (Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black), "WARNING");
+            typeColor[LogType.Error] = (Application.Driver.MakeAttribute(Color.Red, Color.Black), "ERROR");
+
             CommandHistory = new List<string>();
-            Messages = new List<LoggerMessage>();
+            Messages = new ConcurrentQueue<LoggerMessage>();
             View = new LoggerView();
 
             Application.GrabMouse(View); // This way we can scroll even when our mouse is over Label views
@@ -46,11 +51,6 @@ namespace GameServer.Logging
             CreateInputField();
 
             StartServer(); // Finished setting up Logger, we can now start the server
-
-            // Populate concurrent type color dictionary
-            typeColor[LogType.Info] = (Application.Driver.MakeAttribute(Color.White, Color.Black), "INFO");
-            typeColor[LogType.Warning] = (Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black), "WARNING");
-            typeColor[LogType.Error] = (Application.Driver.MakeAttribute(Color.Red, Color.Black), "ERROR");
 
             Application.Run();
         }
@@ -90,6 +90,7 @@ namespace GameServer.Logging
 
         private static LoggerMessage CreateMessage(LogType type, object obj) 
         {
+            if (obj == null) obj = "undefined";
             var time = $"{DateTime.Now:HH:mm:ss}";
             var message = new LoggerMessage($"{time} [{typeColor[LogType.Info].Name}] {obj.ToString()}");
             message.TextColor = typeColor[LogType.Info].Color;
@@ -102,7 +103,7 @@ namespace GameServer.Logging
             if (GetTotalLines() > LoggerView.Driver.Clip.Bottom - BOTTOM_PADDING)
                 ViewOffset -= message.GetLines();
 
-            Messages.Add(message);
+            Messages.Enqueue(message);
             View.Add(message);
             UpdatePositions();
         }

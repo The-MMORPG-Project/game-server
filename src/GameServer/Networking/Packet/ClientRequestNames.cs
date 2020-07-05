@@ -32,7 +32,7 @@ namespace GameServer.Networking.Packet
                 data.Add(client.ID);
                 data.Add(client.Name);
 
-                Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.ClientName, PacketFlags.Reliable, data.ToArray()), new Peer[] { client.Peer });
+                //Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.ClientName, PacketFlags.Reliable, data.ToArray()), new Peer[] { client.Peer });
             }
         }
     }

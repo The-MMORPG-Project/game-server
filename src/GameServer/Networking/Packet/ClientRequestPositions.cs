@@ -1,6 +1,8 @@
 using System.Collections.Generic;
-
 using ENet;
+using GameServer.Networking.Message;
+using Common.Networking.Packet;
+using GameServer.Logging;
 
 namespace GameServer.Networking.Packet
 {
@@ -39,7 +41,11 @@ namespace GameServer.Networking.Packet
                 data.Add(client.x);
                 data.Add(client.y);
 
-                Network.Broadcast(Server.server, GamePacket.Create(ServerPacketType.PositionUpdate, PacketFlags.Reliable, data.ToArray()), new Peer[] { recipient.Peer });
+                var message = new MessagePositionUpdate(client.ID, client.x, client.y);
+                var peers = new Peer[] { recipient.Peer};
+                Network.Broadcast(ServerPacketType.PositionUpdates, message, peers, PacketFlags.None);
+
+                Logger.Log("test");
             }
         }
     }

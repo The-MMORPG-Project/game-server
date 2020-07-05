@@ -9,6 +9,10 @@ using ENet;
 using GameServer.Logging;
 using GameServer.Networking.Packet;
 using GameServer.Networking.Utils;
+using GameServer.Networking.Message;
+
+using Common.Networking.Packet;
+using Common.Networking.Message;
 
 namespace GameServer.Networking
 {
@@ -16,12 +20,12 @@ namespace GameServer.Networking
     {
         public static Dictionary<string, HandlePacket> HandlePackets = typeof(HandlePacket).Assembly.GetTypes().Where(x => typeof(HandlePacket).IsAssignableFrom(x) && !x.IsAbstract).Select(Activator.CreateInstance).Cast<HandlePacket>().ToDictionary(x => x.GetType().Name, x => x);
 
-        public static Host server;
+        public static Host Host;
         public GameTimer positionUpdatePump;
 
         private const int POSITION_UPDATE_DELAY = 100;
 
-        public static byte channelID = 0;
+        public static byte ChannelID = 0;
 
         private ushort port;
         private int maxClients;
@@ -47,11 +51,11 @@ namespace GameServer.Networking
         {
             Library.Initialize();
 
-            server = new Host();
+            Host = new Host();
 
             var address = new Address();
             address.Port = port;
-            server.Create(address, maxClients);
+            Host.Create(address, maxClients);
             serverRunning = true;
 
             Logger.Log($"Server listening on {port}");
@@ -66,12 +70,12 @@ namespace GameServer.Networking
 
                 while (!polled)
                 {
-                    if (!server.IsSet)
+                    if (!Host.IsSet)
                         return;
 
-                    if (server.CheckEvents(out netEvent) <= 0)
+                    if (Host.CheckEvents(out netEvent) <= 0)
                     {
-                        if (server.Service(15, out netEvent) <= 0)
+                        if (Host.Service(15, out netEvent) <= 0)
                             break;
 
                         polled = true;
@@ -108,7 +112,7 @@ namespace GameServer.Networking
                     }
                 }
 
-                server.Flush();
+                Host.Flush();
             }
 
             CleanUp();
@@ -155,7 +159,13 @@ namespace GameServer.Networking
 
                 // Send the data to the clients
                 Logger.Log($"Broadcasting to client {clientQueued.ID}");
-                Network.Broadcast(server, GamePacket.Create(ServerPacketType.PositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
+                //Network.Broadcast(server, GamePacket.Create(ServerPacketType.PositionUpdate, PacketFlags.None, data.ToArray()), sendPeers.ToArray());
+
+                /*var serverPacket = new ServerPacket(ServerPacketType.PositionUpdates, new MessageHandshake());
+                var packet = default(ENet.Packet);
+                packet.Create(serverPacket.Data, PacketFlags.None);
+                Network.Broadcast(packet, sendPeers.ToArray());*/
+
                 positionPacketQueue.Remove(clientQueued);
             }
         }
@@ -177,26 +187,24 @@ namespace GameServer.Networking
 
                 readStream.Position = 0;
                 netEvent.Packet.CopyTo(readBuffer);
+
                 var packetID = (ClientPacketType)reader.ReadByte();
 
-                switch (packetID)
+                if (packetID == ClientPacketType.Disconnect) 
                 {
-                    case ClientPacketType.RequestNames:
+                    Logger.Log($"Client {netEvent.Peer.ID} has disconnected");
+                }
+
+                /*switch (packetID)
+                {
+                    case PacketType.A:
                         HandlePackets["ClientRequestNames"].Run(id);
                         break;
 
-                    case ClientPacketType.RequestPositions:
+                    case PacketType.B:
                         HandlePackets["ClientRequestPositions"].Run(id);
                         break;
-
-                    case ClientPacketType.PositionUpdate:
-                        HandlePackets["ClientPositionUpdate"].Run(id, reader);
-                        break;
-
-                    case ClientPacketType.Disconnect:
-                        HandlePackets["ClientDisconnect"].Run(id, netEvent);
-                        break;
-                }   
+                }   */
 
                 readStream.Dispose();
                 reader.Dispose();
@@ -216,7 +224,7 @@ namespace GameServer.Networking
         private void CleanUp()
         {
             positionUpdatePump.Dispose();
-            server.Dispose();
+            Host.Dispose();
             Library.Deinitialize();
         }
     }
